@@ -44,7 +44,8 @@ class LaneFinder:
 
 		self.camCalibrator = CameraCalibrator()
 		self.img2bin = ImageToBinary()
-
+		
+		# Dta of previous detection to smooth the results and prevent outliers
 		self.last_left_lanes = []
 		self.last_right_lanes = []
 
@@ -136,7 +137,8 @@ class LaneFinder:
 			window_centroids.append((l_center,r_center))
 
 		return window_centroids
-
+	
+	# Returns the binary image with the centroids as rectangles
 	def draw_lanes_rect(self, warped):
 		window_centroids = self.find_window_centroids(warped)
 
@@ -168,7 +170,8 @@ class LaneFinder:
 			output = np.array(cv2.merge((warped,warped,warped)),np.uint8)
 
 		return output
-
+	
+	# Function to calculate the lanes polynomials
 	def get_lanes(self, warped):
 
 		window_centroids = self.find_window_centroids(warped)
@@ -219,6 +222,7 @@ class LaneFinder:
 		else:
 			return np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0])
 
+	# Returns the binary image with the fitted polynomial lines
 	def draw_lanes_poly(self, img):
 		out_img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGRA)
 		window_img = np.zeros_like(out_img)
@@ -362,8 +366,8 @@ class LaneFinder:
 	def process_image(self, dist):
 		
 		global idx
-		cv2.imwrite("tmp/test_" + str(idx) + ".jpg", cv2.cvtColor(dist, cv2.COLOR_RGB2BGR))
-		idx += 1
+		#cv2.imwrite("tmp/test_" + str(idx) + ".jpg", cv2.cvtColor(dist, cv2.COLOR_RGB2BGR))
+		#idx += 1
 
 		undist = self.camCalibrator.cal_undistort(dist)
 		bin_img = self.img2bin.convert_to_binary(undist)
@@ -382,8 +386,8 @@ class LaneFinder:
 		# Combine the result with the original image
 		result = cv2.addWeighted(undist, 1, newwarp, 0.3, 0)
 
-		cv2.imwrite("tmp/testout_" + str(idx) + ".jpg", cv2.cvtColor(result, cv2.COLOR_RGB2BGR))
-		idx += 1
+		#cv2.imwrite("tmp/testout_" + str(idx) + ".jpg", cv2.cvtColor(result, cv2.COLOR_RGB2BGR))
+		#idx += 1
 
 		return result
 
@@ -391,7 +395,9 @@ idx = 0
 	
 if __name__ == "__main__":
 	
-	if True:
+	testing = False
+
+	if testing:
 		# Object to correct the camera images
 		camCalibrator = CameraCalibrator()
 
@@ -403,7 +409,7 @@ if __name__ == "__main__":
 
 		img2bin = ImageToBinary()
 
-		test = "./tmp/test_904.jpg"
+		test = "./tmp/test_1.jpg"
 		img = cv2.imread(test)
 		img = camCalibrator.cal_undistort(img)
 		bin_img = img2bin.convert_to_binary(img)
@@ -415,7 +421,7 @@ if __name__ == "__main__":
 	
 		# Points for bird-view transformation
 		shape = bin_img.shape[0:2]
-		src = np.float32([[0.14*shape[1], shape[0]-10],[shape[1]*0.46, shape[0]*0.68],[shape[1]*0.56, shape[0]*0.68],[shape[1]*0.88, shape[0]-10]])
+		src = np.float32([[0.14*shape[1], shape[0]-10],[shape[1]*0.46, shape[0]*0.62],[shape[1]*0.56, shape[0]*0.62],[shape[1]*0.88, shape[0]-10]])
 
 		# We draw the points in the image to check them
 		img2 = bin_img
@@ -424,10 +430,12 @@ if __name__ == "__main__":
 			cv2.line(img2,tuple(src[i]),tuple(src[(i+1)%len(src)]),(0,0,255),3)
 		
 		#cv2.imwrite("./examples/test1_bin_trans1.jpg", img2)
-		#cv2.imshow("test", img2)
-		#cv2.waitKey(0)
+		cv2.imshow("test", img2)
+		cv2.waitKey(0)
 
 		dest = np.float32([[0.10*shape[1], shape[0]-1],[shape[1]*0.10, 0],[shape[1]*0.90, 0],[shape[1]*0.90, shape[0]-1]])
+
+		print (src)
 	
 		img2 = camCalibrator.change_perspective(bin_img, src, dest, img.shape[0:2])
 	
@@ -435,9 +443,9 @@ if __name__ == "__main__":
 		for i in range(len(dest)):
 			cv2.line(out,tuple(dest[i]),tuple(dest[(i+1)%len(dest)]),(0,0,255),3)
 		
-		#cv2.imwrite("./examples/test1_bin_trans2.jpg", out)
-		#cv2.imshow("test", out)
-		#cv2.waitKey(0)
+		cv2.imwrite("./examples/test1_bin_trans2.jpg", out)
+		cv2.imshow("test", out)
+		cv2.waitKey(0)
 	
 		solver = LaneFinder()
 		warped = img2
