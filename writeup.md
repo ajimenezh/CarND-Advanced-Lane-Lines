@@ -152,7 +152,11 @@ Here's a [link to my video result](./output_videos/project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-One problem I had, that I couldn't solve (and probably there is not easy solution), is that, when fitting the data to find the lane, sometimes, especially when the lane is not continuous, I don't have data for all the area that I want to plot, and the polynomial fitting is very bad at extrapolation, so while near the car the line is very good, when we go further away, the curvature of the line can be wrong. A possible solution could be to use a line, instead of a 2nd order polynomial (even if the input are only two points, the function polyfit does not return a 1st order line).
+One problem I had, is that, when fitting the data to find the lane, sometimes, especially when the lane is not continuous, I don't have data for all the area that I want to plot, and the polynomial fitting is very bad at extrapolation, so if the discontinuous line is near the car, there the fit is good, but when we go further away and we don't have data, the curvature of the line can be wrong. A possible solution could be to use a line, instead of a 2nd order polynomial (even if the input are only two points, the function polyfit does not return a 1st order line).
 
-Also, it is very difficult to find a good binary threshold that works always, so maybe, depending on the ilumination, shadows, ... we should change the parameters.
+Also, another problem I found is that it is hard to find a good binary threshold that works in every case. One possible solution may be to change the parameters automatically to find a good lane.
+
+In addition, I have found that in the challenge video my algorithm fails in a place where a shadow hides the lane. The smoothing helps this, because if the pipeline can't detect a lane, it takes the median of the previous detections, but it is not a perfect solution.
+
+I think that the biggest inestability comes from the binary threshold, and a way the make the program more robust would be to have a few functions with different parameters, each one trying to detect the lanes, and picking the best ones.
 
