@@ -136,7 +136,7 @@ The curvature is calculated in the function `get_curvature()` in the class `Line
 
 The function that plots the lane area is `process_image()` in the class `LaneFinder` in `program.py`. This functions does all the operations mentioned earlier, and then changes the perspective again, to obtain the original.
 
-![alt text][result1]
+![alt text][road_result]
 
 ---
 
