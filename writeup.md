@@ -17,14 +17,14 @@ The goals / steps of this project are the following:
 
 [board_dist]: ./examples/cal1.jpg "Distorted"
 [board_undist]: ./examples/cal1_undist.jpg "Undistorted"
-[road_dist]: ./examples/test1.jpg "Road Distorted"
-[road_undist]: ./examples/test1_undist.jpg "Road Undistorted"
-[road_bin]: ./examples/test1_bin.jpg "Road Binary"
-[perspective1]: ./examples/test1_bin_trans1.jpg "Road Binary Lines"
-[perspective1]: ./examples/test1_bin_trans2.jpg "Road Binary Bird-View"
-[road_rect]: ./examples/test1_bin_rect.jpg "Road Binary Centroids"
-[road_pol]: ./examples/test1_bin_pol.jpg "Road Binary Polynomial Lines"
-[road_result]: ./examples/test1_result.jpg "Road Result"
+[road_dist]: ./examples/test_1.jpg "Road Distorted"
+[road_undist]: ./examples/test_1_undist.jpg "Road Undistorted"
+[road_bin]: ./examples/test_1_bin.jpg "Road Binary"
+[perspective1]: ./examples/test_1_bin_trans1.jpg "Road Binary Lines"
+[perspective1]: ./examples/test_1_bin_trans2.jpg "Road Binary Bird-View"
+[road_rect]: ./examples/test_1_bin_rect.jpg "Road Binary Centroids"
+[road_pol]: ./examples/test_1_bin_pol.jpg "Road Binary Polynomial Lines"
+[road_result]: ./examples/test_1_result.jpg "Road Result"
 
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
@@ -49,7 +49,7 @@ You're reading it!
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The code for this step is contained in the file "camcal.py" which contains a class called CameraCalibrator, which is responsible for the correction of the distortion of the images.
+The code for this step is contained in the file "camcal.py", which contains a class called CameraCalibrator, responsible for the correction of the distortion of the images.
 
 I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. These points are only calculated the first time, and then they are store in a file with pickle, so the next time we don't need to load all the images.
 
