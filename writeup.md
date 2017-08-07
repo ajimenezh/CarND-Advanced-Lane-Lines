@@ -21,7 +21,7 @@ The goals / steps of this project are the following:
 [road_undist]: ./examples/test_1_undist.jpg "Road Undistorted"
 [road_bin]: ./examples/test_1_bin.jpg "Road Binary"
 [perspective1]: ./examples/test1_bin_trans1.jpg "Road Binary Lines"
-[perspective1]: ./examples/test1_bin_trans2.jpg "Road Binary Bird-View"
+[perspective2]: ./examples/test1_bin_trans2.jpg "Road Binary Bird-View"
 [road_rect]: ./examples/test1_bin_rect.jpg "Road Binary Centroids"
 [road_pol]: ./examples/test1_bin_pol.jpg "Road Binary Polynomial Lines"
 [road_result]: ./examples/test1_result.jpg "Road Result"
@@ -87,8 +87,8 @@ The code for the perspective transformation is contained in the class `CameraCal
 ```python
 src = np.float32([
 [0.14*shape[1], shape[0]-10],
-[shape[1]*0.46, shape[0]*0.68],
-[shape[1]*0.56, shape[0]*0.68],
+[shape[1]*0.46, shape[0]*0.62],
+[shape[1]*0.56, shape[0]*0.62],
 [shape[1]*0.88, shape[0]-10]])
 
 dest = np.float32([
@@ -102,10 +102,10 @@ This resulted in the following source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 179, 710      | 128, 719      | 
-| 588, 489      | 128, 0      	|
+| 281, 710      | 128, 719      | 
+| 563, 489      | 128, 0      	|
 | 716, 489     	| 1152, 0      	|
-| 1126, 710      | 1152, 719     |
+| 998, 710      | 1152, 719     |
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
