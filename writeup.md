@@ -20,11 +20,11 @@ The goals / steps of this project are the following:
 [road_dist]: ./examples/test_1.jpg "Road Distorted"
 [road_undist]: ./examples/test_1_undist.jpg "Road Undistorted"
 [road_bin]: ./examples/test_1_bin.jpg "Road Binary"
-[perspective1]: ./examples/test_1_bin_trans1.jpg "Road Binary Lines"
-[perspective1]: ./examples/test_1_bin_trans2.jpg "Road Binary Bird-View"
-[road_rect]: ./examples/test_1_bin_rect.jpg "Road Binary Centroids"
-[road_pol]: ./examples/test_1_bin_pol.jpg "Road Binary Polynomial Lines"
-[road_result]: ./examples/test_1_result.jpg "Road Result"
+[perspective1]: ./examples/test1_bin_trans1.jpg "Road Binary Lines"
+[perspective1]: ./examples/test1_bin_trans2.jpg "Road Binary Bird-View"
+[road_rect]: ./examples/test1_bin_rect.jpg "Road Binary Centroids"
+[road_pol]: ./examples/test1_bin_pol.jpg "Road Binary Polynomial Lines"
+[road_result]: ./examples/test1_result.jpg "Road Result"
 
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
@@ -74,7 +74,7 @@ And using the function `cal_undistort()` from the class `CameraCalibrator`, whic
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-The class in charge of creating the thresholded binary image is `ImageToBinary` in the file `imgbin`. The binary image is created by a combination of the S channel of a HLS image and the V channel of HSV image with and and operation, and then we add the L channel of the HLS image with and or operation. I have found that this combination is the one that works best with different illuminations and shadows. The other operations using the Sobel operation didn't differentiate well enough shadows on the road.
+The class in charge of creating the thresholded binary image is `ImageToBinary` in the file `imgbin.py`. The binary image is created by a combination of the S channel of a HLS image and the V channel of HSV image with an and operation, and then we add the L channel of the HLS image with an or operation. I have found that this combination is the one that works best with different illuminations and shadows. The other operations using the Sobel operation didn't differentiate well enough shadows on the road.
 
 To obtain the binary image, we call `convert_to_binary()` with the undistorted image as the input, for example, for the previous image:
 
@@ -84,13 +84,11 @@ To obtain the binary image, we call `convert_to_binary()` with the undistorted i
 
 The code for the perspective transformation is contained in the class `CameraCalibrator` in the file `camcal.py` by the name `change_perspective()`. This function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points. I chose the hardcode the source and destination points in the following manner:
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner, being shape the size of the image:
-
 ```python
 src = np.float32([
 [0.14*shape[1], shape[0]-10],
-[shape[1]*0.46, shape[0]*0.62],
-[shape[1]*0.56, shape[0]*0.62],
+[shape[1]*0.46, shape[0]*0.68],
+[shape[1]*0.56, shape[0]*0.68],
 [shape[1]*0.88, shape[0]-10]])
 
 dest = np.float32([
@@ -104,10 +102,10 @@ This resulted in the following source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 281, 710      | 128, 719      | 
-| 563, 489      | 128, 0      	|
+| 179, 710      | 128, 719      | 
+| 588, 489      | 128, 0      	|
 | 716, 489     	| 1152, 0      	|
-| 998, 710      | 1152, 719     |
+| 1126, 710      | 1152, 719     |
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
