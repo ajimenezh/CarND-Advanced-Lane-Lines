@@ -15,7 +15,7 @@ class Line:
 		#polynomial coefficients for the most recent fit
 		self.fit = fit.copy() 
 		#radius of curvature of the line in some units
-		self.radius_of_curvature = self.get_curvature(fit, 520) 
+		self.radius_of_curvature = self.get_curvature(fit, 0) 
 		#distance in meters of vehicle center from the line
 		self.line_base_pos = fit[2]
 
@@ -23,16 +23,19 @@ class Line:
 		
 		a = 30/720.0
 		b = 3.7/700.0
-		#print (self.direction, self.radius_of_curvature*a/b, fit)
+		print (self.direction, self.radius_of_curvature*b/a, fit)
 
 	def get_curvature(self, fit, y_eval):
 		return ((1 + (2*fit[0]*y_eval + fit[1])**2)**1.5) / np.absolute(2*fit[0])
 
-	def get_curvature_real(self, fit, y_eval):
-		r = get_curvature(fit, y_eval)
+	def get_curvature_real(self, y_eval):
+		r = self.get_curvature(self.fit, y_eval)
+		a = 30/720.0
+		b = 3.7/700.0
+		return r*b/a
 
-	def get_x(self, fit, y_eval):
-		return fit[0]*y_eval*y_eval + fit[1]*y_eval + fit[2]
+	def get_x(self, y_eval):
+		return self.fit[0]*y_eval*y_eval + self.fit[1]*y_eval + self.fit[2]
 
 class LaneFinder:
 	
@@ -50,6 +53,9 @@ class LaneFinder:
 		self.last_right_lanes = []
 
 		self.n_lanes = 6
+
+		self.last_right_lane = None
+		self.last_left_lane = None
 
 	def window_mask(self, img_ref, center,level):
 		output = np.zeros_like(img_ref)
@@ -317,8 +323,10 @@ class LaneFinder:
 			X.append(x)
 
 		#print (lane, np.polyfit(Y,X,2))
+
+		self.last_left_lane = Line(np.polyfit(Y,X,2))
 		
-		return np.polyfit(Y,X,2)
+		return self.last_left_lane.fit
 
 	def process_right_lane(self, lane):
 		
@@ -349,11 +357,13 @@ class LaneFinder:
 			X.append(x)
 
 		#print (lane, np.polyfit(Y,X,2))
+
+		self.last_right_lane = Line(np.polyfit(Y,X,2))
 		
-		return np.polyfit(Y,X,2)
+		return self.last_right_lane.fit
 
 	def find_lanes_video(self, path):
-		white_output = 'output/' + path.split('/')[-1]
+		white_output = 'output_videos/' + path.split('/')[-1]
 		## To speed up the testing process you may want to try your pipeline on a shorter subclip of the video
 		## To do so add .subclip(start_second,end_second) to the end of the line below
 		## Where start_second and end_second are integer values representing the start and end of the subclip
@@ -374,7 +384,7 @@ class LaneFinder:
 		
 		shape = bin_img.shape[0:2]
 
-		src = np.float32([[0.14*shape[1], shape[0]-10],[shape[1]*0.46, shape[0]*0.68],[shape[1]*0.56, shape[0]*0.68],[shape[1]*0.88, shape[0]-10]])
+		src = np.float32([[0.12*shape[1], shape[0]-10],[shape[1]*0.44, shape[0]*0.64],[shape[1]*0.56, shape[0]*0.64],[shape[1]*0.88, shape[0]-10]])
 
 		dest = np.float32([[0.10*shape[1], shape[0]-1],[shape[1]*0.10, 0],[shape[1]*0.90, 0],[shape[1]*0.90, shape[0]-1]])
 
@@ -385,6 +395,20 @@ class LaneFinder:
 		newwarp = self.camCalibrator.change_perspective(output, dest, src, output.shape[0:2]) 
 		# Combine the result with the original image
 		result = cv2.addWeighted(undist, 1, newwarp, 0.3, 0)
+	
+		leftCurv = self.last_left_lane.get_curvature_real(shape[0])
+		rightCurv = self.last_right_lane.get_curvature_real(shape[0])
+
+		text = 'Radius of curvature: (L): {left} m (R): {right} m'.format(left=leftCurv, right=rightCurv)
+		cv2.putText(result,text, (0,50), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
+		
+		left = self.last_left_lane.get_x(shape[0])
+		right = self.last_right_lane.get_x(shape[0])
+		offset = (right + left)/2.0 - shape[1]/2
+		offset *= 3.7/700.0
+
+		text = 'Offset from center: {offset} m'.format(offset=offset)
+		cv2.putText(result,text, (0,100), cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
 
 		#cv2.imwrite("tmp/testout_" + str(idx) + ".jpg", cv2.cvtColor(result, cv2.COLOR_RGB2BGR))
 		#idx += 1
@@ -421,7 +445,7 @@ if __name__ == "__main__":
 	
 		# Points for bird-view transformation
 		shape = bin_img.shape[0:2]
-		src = np.float32([[0.14*shape[1], shape[0]-10],[shape[1]*0.46, shape[0]*0.62],[shape[1]*0.56, shape[0]*0.62],[shape[1]*0.88, shape[0]-10]])
+		src = np.float32([[0.12*shape[1], shape[0]-10],[shape[1]*0.44, shape[0]*0.64],[shape[1]*0.56, shape[0]*0.64],[shape[1]*0.88, shape[0]-10]])
 
 		# We draw the points in the image to check them
 		img2 = bin_img
@@ -429,7 +453,7 @@ if __name__ == "__main__":
 		for i in range(len(src)):
 			cv2.line(img2,tuple(src[i]),tuple(src[(i+1)%len(src)]),(0,0,255),3)
 		
-		#cv2.imwrite("./examples/test1_bin_trans1.jpg", img2)
+		cv2.imwrite("./examples/test1_bin_trans1.jpg", img2)
 		cv2.imshow("test", img2)
 		cv2.waitKey(0)
 
@@ -456,13 +480,13 @@ if __name__ == "__main__":
 		plt.imshow(output)
 		#plt.title('window fitting results')
 		plt.show()
-		#cv2.imwrite("./examples/test1_bin_rect.jpg", output)
+		cv2.imwrite("./examples/test1_bin_rect.jpg", output)
 
 		#print (solver.get_lanes(warped))
 
 		output = solver.draw_lanes_poly(warped)
 		
-		cv2.imwrite("./examples/test1_bin_pol.jpg", output)
+		#cv2.imwrite("./examples/test1_bin_pol.jpg", output)
 		# Display the final results
 		#cv2.imshow("test", output)
 		#cv2.waitKey(0)
@@ -481,7 +505,7 @@ if __name__ == "__main__":
 		#import cProfile
 		#cProfile.run('solver.find_lanes_video("project_video.mp4")')
 
-		solver.find_lanes_video('challenge_video.mp4')
+		solver.find_lanes_video('project_video.mp4')
 
 	
 		
